@@ -5,14 +5,14 @@ Objetivo: Desenvolver soluções baseadas em Machine Learning capazes de gerar i
 
 Integrantes do grupo:
 
-Antonio Lemos
+--> Antonio Lemos
 
-Ruan Guedes
+--> Ruan Guedes
 
-Carrasco
+--> Carrasco
 
-Dandara
+--> Dandara
 
-Afonso
+--> Afonso
 
-João Lucas
+--> João Lucas
