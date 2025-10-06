@@ -15,6 +15,10 @@ Projeto de Inteligência Artificial e Aprendizado de Máquina aplicado à Políc
 - Afonso
 - João Lucas
 
+**Design Figma e Apresentação**
+- [Figma](https://www.figma.com/design/wOeRvufftfiorEAUbSIYtu/Machine-learning-AI?node-id=0-1&t=1cYXgcJJ6imD2La5-1)
+- [Apresentação]()
+
 ---
 
 # Painel de Gestão — Supervisionado
@@ -23,16 +27,34 @@ App **Streamlit** para visualização histórica e previsões de ocorrências po
 
 ## Estrutura geral de pastas
 
+.
+├── NaoSupervisionado/
+│   ├── EDA.ipynb
+│   └── modelo.ipynb
+│
+├── Supervisionado/
+│   ├── app.py
+│   ├── dataset_delegacias/
+│   ├── dataset_encoded.csv
+│   ├── EDA.ipynb
+│   └── modelo.ipynb
+│
+├── .gitignore
+├── dataset_encoded.csv
+├── dataset_ocorrencias_delegacia_5.csv
+├── README.md
+└── requirements.txt
+
 ## Estrutura do projeto
 
 Coloque estes arquivos dentro da pasta `Supervisionado`:
-
+```
 Supervisionado/
 ├─ app.py
 ├─ dataset_encoded.csv
 ├─ dataset_delegacias.txt
 ├─ requirements.txt
-
+```
 yaml
 Copiar código
 
