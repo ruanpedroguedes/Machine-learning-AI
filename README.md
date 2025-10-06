@@ -26,7 +26,7 @@ Projeto de Inteligência Artificial e Aprendizado de Máquina aplicado à Políc
 App **Streamlit** para visualização histórica e previsões de ocorrências por delegacia, ano, mês, dia da semana e tipo de crime.
 
 ## Estrutura geral de pastas
-
+```
 .
 ├── NaoSupervisionado/
 │   ├── EDA.ipynb
@@ -44,6 +44,7 @@ App **Streamlit** para visualização histórica e previsões de ocorrências po
 ├── dataset_ocorrencias_delegacia_5.csv
 ├── README.md
 └── requirements.txt
+```
 
 ## Estrutura do projeto
 
