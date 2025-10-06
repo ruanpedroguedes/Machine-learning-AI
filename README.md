@@ -1,5 +1,7 @@
 # Machine-learning-AI
 
+![Status](https://img.shields.io/badge/status-em%20desenvolvimento-green) 
+
 Projeto de Inteligência Artificial e Aprendizado de Máquina aplicado à Polícia Civil de Pernambuco, com foco na gestão de delegacias e na entrega de informações relevantes e de valor prático para a melhoria da eficiência e da tomada de decisões dentro da instituição.
 
 **Objetivo:** Desenvolver soluções baseadas em Machine Learning capazes de gerar insights úteis e aplicáveis à realidade da Polícia Civil, contribuindo para a otimização de processos e aprimoramento da gestão das unidades policiais.
@@ -18,6 +20,8 @@ Projeto de Inteligência Artificial e Aprendizado de Máquina aplicado à Políc
 # Painel de Gestão — Supervisionado
 
 App **Streamlit** para visualização histórica e previsões de ocorrências por delegacia, ano, mês, dia da semana e tipo de crime.
+
+## Estrutura geral de pastas
 
 ## Estrutura do projeto
 
@@ -105,3 +109,5 @@ Problemas comuns
 FileNotFoundError: verifique se dataset_encoded.csv e dataset_delegacias.txt estão na mesma pasta do app.py.
 
 TypeError relacionado a squared: use a versão corrigida do train_model incluída ou atualize o scikit-learn.
+
+# Design Figma e Apresentação
