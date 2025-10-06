@@ -132,5 +132,3 @@ Problemas comuns
 FileNotFoundError: verifique se dataset_encoded.csv e dataset_delegacias.txt estão na mesma pasta do app.py.
 
 TypeError relacionado a squared: use a versão corrigida do train_model incluída ou atualize o scikit-learn.
-
-# Design Figma e Apresentação
