@@ -13,7 +13,7 @@ from sklearn.metrics import mean_absolute_error, mean_squared_error, r2_score
 import plotly.express as px
 from functools import lru_cache
 
-st.set_page_config(page_title="Gestão de Delegacias — Painel", layout="wide")
+st.set_page_config(page_title="Gestão de Delegacias — Painel", layout="wide", page_icon="assets/icon-policia-civil.png")
 
 # ---------- Helpers ----------
 @st.cache_data
@@ -84,6 +84,9 @@ crimes_all = sorted(df_raw["tipo_crime"].dropna().unique().tolist())
 dias_all = ["Monday","Tuesday","Wednesday","Thursday","Friday","Saturday","Sunday"]
 
 # ---------- Sidebar controls ----------
+
+st.sidebar.image("assets/logo-policia-civil.png")
+
 st.sidebar.title("Filtros & Previsões")
 sel_delegacias = st.sidebar.multiselect("Delegacias (selecione)", options=delegacias_all, default=delegacias_all)
 sel_crimes = st.sidebar.multiselect("Tipos de crime (filtro avançado)", options=crimes_all, default=crimes_all)
