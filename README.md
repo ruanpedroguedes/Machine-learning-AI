@@ -17,7 +17,8 @@ Projeto de Inteligência Artificial e Aprendizado de Máquina aplicado à Políc
 
 **Design Figma e Apresentação**
 - [Figma](https://www.figma.com/design/wOeRvufftfiorEAUbSIYtu/Machine-learning-AI?node-id=0-1&t=1cYXgcJJ6imD2La5-1)
-- [Apresentação]()
+- [Apresentação](https://www.canva.com/design/DAG1H4M5ckM/SoWyjv2lFYr6my4fgZiLKQ/edit?utm_content=DAG1H4M5ckM&utm_campaign=designshare&utm_medium=link2&utm_source=sharebutton)
+- [Documentos de Pitch e modelo de negócios](https://www.canva.com/design/DAG096B2D4A/v6hnSsvxeB04EkotqAK4Nw/edit?utm_content=DAG096B2D4A&utm_campaign=designshare&utm_medium=link2&utm_source=sharebutton)
 
 ---
 

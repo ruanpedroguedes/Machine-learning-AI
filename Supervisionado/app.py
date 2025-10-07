@@ -1,8 +1,11 @@
-# app.py
+# app.py (versão atualizada)
 """
 Streamlit app para visualização histórica e previsões
 (quantidade de ocorrências por ano / mês / dia da semana / delegacia / tipo de crime)
-Base: dataset_encoded.csv (features one-hot) + dataset_delegacias.txt (nomes originais)
+Melhorias:
+- organização dos gráficos de previsões quando há apenas 1 ano previsto (grid de pequenos gráficos)
+- explicação didática das métricas (pensado para policial/leigo)
+- novos gráficos de análise exploratória
 """
 import streamlit as st
 import pandas as pd
@@ -12,20 +15,53 @@ from sklearn.model_selection import train_test_split
 from sklearn.metrics import mean_absolute_error, mean_squared_error, r2_score
 import plotly.express as px
 from functools import lru_cache
+import math
+from textwrap import dedent
 
 st.set_page_config(page_title="Gestão de Delegacias — Painel", layout="wide", page_icon="assets/icon-policia-civil.png")
 
 # ---------- Helpers ----------
 @st.cache_data
 def load_data():
-    df_enc = pd.read_csv("dataset_encoded.csv")
-    df_raw = pd.read_csv("dataset_delegacias")
-    # normalize column names
+    """
+    Tenta carregar os datasets mais comuns que você pode ter enviado.
+    Retorna: df_enc (one-hot), df_raw (original)
+    """
+    enc_paths = ["dataset_encoded.csv", "dataset_encoded (1).csv", "dataset_encoded.csv"]
+    raw_paths = ["dataset_delegacias.txt", "dataset_delegacias (1).txt", "dataset_delegacias.csv", "dataset_delegacias"]
+
+    df_enc = None
+    df_raw = None
+    # tenta arquivos possíveis para dataset encoded
+    for p in enc_paths:
+        try:
+            df_enc = pd.read_csv(p)
+            break
+        except Exception:
+            continue
+    # tenta arquivos possíveis para raw
+    for p in raw_paths:
+        try:
+            # se for txt com separador por vírgula, pandas lê normalmente
+            df_raw = pd.read_csv(p)
+            break
+        except Exception:
+            continue
+
+    if df_enc is None or df_raw is None:
+        raise FileNotFoundError("Não foi possível localizar 'dataset_encoded' ou 'dataset_delegacias'. Verifique os nomes dos arquivos no diretório.")
+
+    # Normaliza nomes de colunas textos consistentes
+    df_raw.columns = [c.strip() for c in df_raw.columns]
     return df_enc, df_raw
 
 @st.cache_resource
 def train_model(df_enc):
-    X = df_enc.drop(columns=["quantidade_ocorrencia", "tipo_crime"])
+    """
+    Treina um RandomForest simples e retorna o modelo, métricas e lista de features usadas.
+    """
+    # evita colunas inesperadas
+    X = df_enc.drop(columns=[c for c in ["quantidade_ocorrencia", "tipo_crime"] if c in df_enc.columns], errors="ignore")
     y = df_enc["quantidade_ocorrencia"]
     X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=0.2, random_state=42)
     model = RandomForestRegressor(n_estimators=150, random_state=42, n_jobs=-1)
@@ -34,16 +70,15 @@ def train_model(df_enc):
 
     mae = mean_absolute_error(y_test, y_pred)
     mse = mean_squared_error(y_test, y_pred)
-    rmse = mse ** 0.5   # cálculo manual do RMSE (sem usar squared=False)
+    rmse = math.sqrt(mse)
     r2 = r2_score(y_test, y_pred)
 
     return model, {"mae": mae, "rmse": rmse, "r2": r2}, list(X.columns)
 
-
 def build_feature_row_for_combo(col_names, delegacia, dia_semana, tipo_crime, ano, mes):
     # create a zero row dict matching training columns
     row = {c: 0 for c in col_names}
-    # set ano and mes
+    # set ano and mes if present among features
     if "ano" in row: row["ano"] = int(ano)
     if "mes" in row: row["mes"] = int(mes)
     # set delegacia one-hot if present
@@ -74,6 +109,22 @@ def generate_future_df(col_names, delegacias, crimes, years, months, dias):
     # Ensure column order
     df_future = df_future.reindex(columns=col_names, fill_value=0)
     return df_future
+
+def chunk_dataframe(df, chunk_size):
+    """Divide um dataframe em pedaços para exibir em múltiplos gráficos."""
+    for i in range(0, len(df), chunk_size):
+        yield df.iloc[i:i+chunk_size]
+
+def top_n_and_rest(df, key_col, value_col, n=8):
+    """Retorna top n e o restante agregado como 'Outros'"""
+    grp = df.groupby(key_col, as_index=False).agg({value_col:"sum"}).sort_values(value_col, ascending=False)
+    if len(grp) <= n:
+        return grp
+    top = grp.head(n)
+    rest = grp.tail(len(grp)-n)
+    rest_sum = rest[value_col].sum()
+    top = pd.concat([top, pd.DataFrame([{key_col: "Outros", value_col: rest_sum}])], ignore_index=True)
+    return top
 
 # ---------- Load ----------
 df_enc, df_raw = load_data()
@@ -106,15 +157,33 @@ st.sidebar.info("Dica: quanto mais anos/combinações pedir no forecast, maior o
 with st.spinner("Treinando modelo (rápido) ..."):
     model, metrics, feature_cols = train_model(df_enc)
 
-# show metrics
+# ---------- Header + Métricas didáticas ----------
 st.header("Painel de Gestão de Ocorrências — Delegacias")
-col1, col2, col3 = st.columns([1,1,2])
+
+st.markdown(dedent("""
+**Como interpretar os indicadores do modelo (de forma simples):**
+
+- 📉 **Erro médio (MAE)** — mostra, em média, quanto o modelo **erra** na previsão (por exemplo: MAE = 0.3 significa que, em média, a previsão difere 0.3 ocorrências do observado).  
+- 📏 **Variação do erro (RMSE)** — similar ao MAE, mas dá mais peso a grandes erros; ajuda a entender a **variabilidade** dos erros.  
+- 🎯 **Qualidade da explicação (R²)** — indica quanto das variações históricas o modelo consegue explicar; 1.0 = perfeito, 0 = não explica nada.
+
+> Dica: esses números servem para **entender a confiança do sistema** — você não precisa modificá-los, o painel já mostra as previsões prontas para uso.
+"""))
+
+col1, col2, col3 = st.columns([1,1,1])
 with col1:
-    st.metric("MAE (teste)", f"{metrics['mae']:.3f}")
+    st.metric("Erro Médio (MAE)", f"{metrics['mae']:.3f}")
 with col2:
-    st.metric("RMSE (teste)", f"{metrics['rmse']:.3f}")
+    st.metric("Erro Quadrático (RMSE)", f"{metrics['rmse']:.3f}")
 with col3:
-    st.metric("R² (teste)", f"{metrics['r2']:.3f}")
+    st.metric("Qualidade (R²)", f"{metrics['r2']:.3f}")
+
+with st.expander("O que isso significa na prática?"):
+    st.write(dedent("""
+        - Um **MAE pequeno** indica que, em média, as previsões estão próximas ao observado.  
+        - Um **RMSE maior que o MAE** indica que existem alguns erros grandes (outliers) nas previsões.  
+        - Um **R² próximo de 1** significa que o modelo capta bem os padrões históricos; valores intermediários (ex.: 0.3–0.6) mostram que o modelo tem utilidade porém não é perfeito.
+    """))
 
 # ---------- Historical aggregation ----------
 df_hist = df_raw.copy()
@@ -158,21 +227,14 @@ dias_sel = dias_selected if dias_selected else dias_all
 future_X = generate_future_df(feature_cols, sel_delegacias, sel_crimes, years_future, months_sel, dias_sel)
 
 predicted = []
+fig_pred = None
+pred_grp = pd.DataFrame()
 if not future_X.empty:
     preds = model.predict(future_X)
     df_future_preds = future_X.copy()
     df_future_preds["predicted"] = preds
-    # We need also columns to group by readable keys (ano, mes, delegacia, dia, crime)
-    # But training features are one-hot. We'll extract the readable labels by reverse mapping:
-    # extract delegacia and crime and dia from one-hot columns
-    # helper functions:
-    def find_onehot_label(row, prefix):
-        for c,v in row.items():
-            if c.startswith(prefix) and (v == 1 or v==1.0):
-                return c.replace(prefix, "")
-        return None
 
-    # build nice columns
+    # build readable rows
     readable_rows = []
     for i, row in df_future_preds.iterrows():
         rdict = {}
@@ -232,18 +294,113 @@ with left_col:
     st.subheader("Histórico")
     st.plotly_chart(fig_hist, use_container_width=True)
     st.markdown("**Tabela histórica (amostra)**")
-    st.dataframe(hist_grp.head(30))
+    try:
+        st.dataframe(hist_grp.head(30))
+    except Exception:
+        st.write("Sem dados históricos para mostrar nesta agregação/filtragem.")
+
 with right_col:
     st.subheader("Previsões")
     if fig_pred is not None:
-        st.plotly_chart(fig_pred, use_container_width=True)
-        st.markdown("**Tabela de previsões (amostra)**")
-        st.dataframe(pred_grp.head(30))
-        # Download CSV
-        csv = pred_grp.to_csv(index=False).encode("utf-8")
-        st.download_button("📥 Baixar previsões (CSV)", data=csv, file_name="previsoes_agregadas.csv", mime="text/csv")
+        # Caso especial: quando só houver 1 ano previsto, evitar gráfico 'blocão'
+        if years_to_forecast == 1:
+            st.markdown("**Previsões organizadas (1 ano selecionado) — pequenos gráficos para facilitar visualização**")
+            # dependendo da agregação, mostramos pequenos gráficos por grupo (tipo_crime ou delegacia)
+            if agg_choice in ["Tipo de crime", "Delegacia"]:
+                # escolher coluna chave
+                key = "tipo_crime" if agg_choice == "Tipo de crime" else "delegacia"
+                # limitar à top N (para não criar 100 gráficos)
+                top_df = top_n_and_rest(pred_grp, key, "predicted", n=8)
+                # cria chunks para exibir 4 por linha
+                chunk_size = 4
+                chunks = list(chunk_dataframe(top_df, chunk_size))
+                for chunk in chunks:
+                    cols = st.columns(len(chunk))
+                    for ci, (_, r) in enumerate(chunk.iterrows()):
+                        with cols[ci]:
+                            single = pd.DataFrame([{key: r[key], "predicted": r["predicted"]}])
+                            # gráfico pequeno
+                            fig_small = px.bar(single, x=key, y="predicted", title=str(r[key]), labels={"predicted":"Ocorrências previstas"})
+                            fig_small.update_layout(height=240, margin=dict(t=40, b=20, l=20, r=20))
+                            st.plotly_chart(fig_small, use_container_width=True)
+                # também mostramos tabela agregada menor abaixo
+                st.markdown("**Resumo agregado (amostra)**")
+                st.dataframe(top_df.head(30))
+                # download
+                csv = top_df.to_csv(index=False).encode("utf-8")
+                st.download_button("📥 Baixar previsões (CSV)", data=csv, file_name="previsoes_agregadas.csv", mime="text/csv")
+            else:
+                # para outras agregações, só mostramos o gráfico normal com altura reduzida
+                fig_pred.update_layout(height=420, bargap=0.18)
+                st.plotly_chart(fig_pred, use_container_width=True)
+                st.markdown("**Tabela de previsões (amostra)**")
+                try:
+                    st.dataframe(pred_grp.head(30))
+                    csv = pred_grp.to_csv(index=False).encode("utf-8")
+                    st.download_button("📥 Baixar previsões (CSV)", data=csv, file_name="previsoes_agregadas.csv", mime="text/csv")
+                except Exception:
+                    st.write("Nenhuma tabela de previsões disponível.")
+        else:
+            # quando >1 ano, exibe gráfico normal mas com altura moderada
+            fig_pred.update_layout(height=520, bargap=0.15)
+            st.plotly_chart(fig_pred, use_container_width=True)
+            st.markdown("**Tabela de previsões (amostra)**")
+            try:
+                st.dataframe(pred_grp.head(30))
+                csv = pred_grp.to_csv(index=False).encode("utf-8")
+                st.download_button("📥 Baixar previsões (CSV)", data=csv, file_name="previsoes_agregadas.csv", mime="text/csv")
+            except Exception:
+                st.write("Nenhuma tabela de previsões disponível.")
     else:
         st.info("Sem previsões (combinações vazias). Ajuste filtros/seleções no sidebar.")
 
-st.markdown("---")
-st.caption("Observação: previsões geradas pelo RandomForest treinado com as features one-hot presentes em dataset_encoded.csv. Agregamos as combinações (delegacia × crime × mês × dia) por ano/mês/dia/delegacia/tipo para obter os totais esperados.")
+
+
+# ---------- Análises Exploratórias (nova seção) ----------
+st.markdown("## 🔍 Análises Exploratórias (Insights)")
+
+# 1) Crimes mais recorrentes (geral)
+colA, colB = st.columns(2)
+with colA:
+    st.markdown("**Crimes mais recorrentes (total)**")
+    try:
+        tot_crimes = df_raw.groupby("tipo_crime", as_index=False).agg({"quantidade_ocorrencia":"sum"}).sort_values("quantidade_ocorrencia", ascending=False)
+        top_crimes = top_n_and_rest(tot_crimes, "tipo_crime", "quantidade_ocorrencia", n=12)
+        fig1 = px.bar(top_crimes, x="tipo_crime", y="quantidade_ocorrencia", title="Crimes mais recorrentes (total)", labels={"quantidade_ocorrencia":"Ocorrências"})
+        fig1.update_layout(height=420)
+        st.plotly_chart(fig1, use_container_width=True)
+    except Exception as e:
+        st.write("Erro ao gerar gráfico de crimes:", e)
+
+with colB:
+    st.markdown("**Distribuição por dia da semana**")
+    try:
+        box = px.box(df_raw, x="dia_semana_name", y="quantidade_ocorrencia", title="Distribuição de Ocorrências por Dia da Semana", labels={"quantidade_ocorrencia":"Ocorrências"})
+        box.update_layout(height=420)
+        st.plotly_chart(box, use_container_width=True)
+    except Exception as e:
+        st.write("Erro ao gerar boxplot:", e)
+
+# 2) Heatmap ano x tipo_crime
+st.markdown("**Mapa de calor — Tipo de Crime × Ano**")
+try:
+    heat = df_raw.groupby(["ano","tipo_crime"], as_index=False).agg({"quantidade_ocorrencia":"sum"})
+    # pivot
+    heat_pivot = heat.pivot(index="tipo_crime", columns="ano", values="quantidade_ocorrencia").fillna(0)
+    fig2 = px.imshow(heat_pivot, aspect="auto", origin="lower", title="Mapa de Calor — Tipo de Crime por Ano")
+    fig2.update_layout(height=420)
+    st.plotly_chart(fig2, use_container_width=True)
+except Exception as e:
+    st.write("Erro ao gerar heatmap:", e)
+
+# 3) Top delegacias por tipo de crime (sunburst ou treemap)
+st.markdown("**Top delegacias para cada tipo de crime (treemap)**")
+try:
+    tre = df_raw.groupby(["tipo_crime","orgao_responsavel"], as_index=False).agg({"quantidade_ocorrencia":"sum"})
+    top_tre = tre.sort_values("quantidade_ocorrencia", ascending=False).groupby("tipo_crime").head(8)
+    fig3 = px.treemap(top_tre, path=["tipo_crime","orgao_responsavel"], values="quantidade_ocorrencia", title="Onde cada crime mais acontece (amostra)")
+    fig3.update_layout(height=600)
+    st.plotly_chart(fig3, use_container_width=True)
+except Exception as e:
+    st.write("Erro ao gerar treemap:", e)
+
