@@ -1,5 +1,7 @@
 # Machine-learning-AI
 
+https://machine-learning-ai-d2yfplzz2jkqtry3cxfmmt.streamlit.app/
+
 ![Status](https://img.shields.io/badge/status-em%20desenvolvimento-green) 
 
 Projeto de Inteligência Artificial e Aprendizado de Máquina aplicado à Polícia Civil de Pernambuco, com foco na gestão de delegacias e na entrega de informações relevantes e de valor prático para a melhoria da eficiência e da tomada de decisões dentro da instituição.
