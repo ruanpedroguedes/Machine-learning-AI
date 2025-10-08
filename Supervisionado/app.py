@@ -28,7 +28,7 @@ def main():
         Tenta carregar os datasets mais comuns que você pode ter enviado.
         Retorna: df_enc (one-hot), df_raw (original)
         """
-        enc_paths = ["dataset_encoded.csv", "dataset_encoded (1).csv", "dataset_encoded.csv"]
+        enc_paths = ["dataset_encoded", "dataset_encoded", "dataset_encoded"]
         raw_paths = ["dataset_delegacias.txt", "dataset_delegacias (1).txt", "dataset_delegacias.csv", "dataset_delegacias"]
 
         df_enc = None
