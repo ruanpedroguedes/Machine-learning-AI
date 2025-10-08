@@ -28,14 +28,14 @@ def main():
         Tenta carregar os datasets mais comuns que você pode ter enviado.
         Retorna: df_enc (one-hot), df_raw (original)
         """
-        enc_paths = ["dataset_encoded", "dataset_encoded", "dataset_encoded"]
-        raw_paths = ["dataset_delegacias.txt", "dataset_delegacias (1).txt", "dataset_delegacias.csv", "dataset_delegacias"]
+        enc_paths = ["dataset_encoded.csv", "dataset_encoded.csv", "dataset_encoded.csv"]
+        raw_paths = ["dataset_delegacias", "dataset_delegacias", "dataset_delegacias", "dataset_delegacias"]
 
         df_enc = None
         df_raw = None
 
-        df_enc = pd.read_csv("Supervisionado\dataset_encoded.csv")
-        df_raw = pd.read_csv("Supervisionado\dataset_delegacias")
+        df_enc = pd.read_csv("Supervisionado/dataset_encoded.csv")
+        df_raw = pd.read_csv("Supervisionado/dataset_delegacias")
         # tenta arquivos possíveis para dataset encoded
         # for p in enc_paths:
         #     try:
