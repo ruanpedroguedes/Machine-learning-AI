@@ -27,7 +27,7 @@ def load_data():
     """
     try:
         # Caminho específico para o dataset
-        df = pd.read_csv("NãoSupervisionado/dataset_delegacias.csv")
+        df = pd.read_csv("nao_supervisionado/dataset_delegacias.csv")
         return df
     except Exception as e:
         st.error(f"Erro ao carregar dados: {e}")
