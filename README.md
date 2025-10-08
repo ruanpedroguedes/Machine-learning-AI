@@ -1,8 +1,6 @@
 # Machine-learning-AI
 
-https://machine-learning-ai-d2yfplzz2jkqtry3cxfmmt.streamlit.app/
-
-![Status](https://img.shields.io/badge/status-em%20desenvolvimento-green) 
+![Status](https://img.shields.io/badge/status-em%20concluido-blue) 
 
 Projeto de Inteligência Artificial e Aprendizado de Máquina aplicado à Polícia Civil de Pernambuco, com foco na gestão de delegacias e na entrega de informações relevantes e de valor prático para a melhoria da eficiência e da tomada de decisões dentro da instituição.
 
@@ -16,6 +14,9 @@ Projeto de Inteligência Artificial e Aprendizado de Máquina aplicado à Políc
 - Dandara
 - Afonso
 - João Lucas
+
+**Aplicação**
+- [Sistema de Otimização de Delegacia](https://machine-learning-ai-d2yfplzz2jkqtry3cxfmmt.streamlit.app/)
 
 **Design Figma e Apresentação**
 - [Figma](https://www.figma.com/design/wOeRvufftfiorEAUbSIYtu/Machine-learning-AI?node-id=0-1&t=1cYXgcJJ6imD2La5-1)
