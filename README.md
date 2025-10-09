@@ -10,10 +10,11 @@ Projeto de Inteligência Artificial e Aprendizado de Máquina aplicado à Políc
 
 - Antonio Lemos
 - Ruan Guedes
-- Carrasco
-- Dandara
-- Afonso
+- Erick Carrasco
+- Dandara Gouveia
+- Gabriel Afonso
 - João Lucas
+- Jairo Marinho
 
 **Aplicação**
 - [Sistema de Otimização de Delegacia](https://machine-learning-ai-d2yfplzz2jkqtry3cxfmmt.streamlit.app/)
