@@ -26,20 +26,25 @@ Projeto de Inteligência Artificial e Aprendizado de Máquina aplicado à Políc
 
 ---
 
-# Painel de Gestão — Supervisionado
-
-App **Streamlit** para visualização histórica e previsões de ocorrências por delegacia, ano, mês, dia da semana e tipo de crime.
-
 ## Estrutura geral de pastas
 ```
 .
-├── NaoSupervisionado/
+├── nao_supervisionado/
+│   ├── app.py
+│   ├── dataset_delegacias.csv
 │   ├── EDA.ipynb
 │   └── modelo.ipynb
 │
+├── pages/
+│   ├── nao_supervisionado.py
+│   └── supervisionado.py
+│
 ├── Supervisionado/
+│   ├── assets/
+│   │   ├── icon-policia-civil.png
+│   │   └── logo-policia-civil.png
 │   ├── app.py
-│   ├── dataset_delegacias/
+│   ├── dataset_delegacias
 │   ├── dataset_encoded.csv
 │   ├── EDA.ipynb
 │   └── modelo.ipynb
@@ -47,9 +52,29 @@ App **Streamlit** para visualização histórica e previsões de ocorrências po
 ├── .gitignore
 ├── dataset_encoded.csv
 ├── dataset_ocorrencias_delegacia_5.csv
+├── main.py
 ├── README.md
 └── requirements.txt
 ```
+
+# Painel de Gestão — Não Supervisionado
+
+Coloque estes arquivos dentro da pasta `Não Supervisionado`:
+
+```
+.
+├── nao_supervisionado/
+│   ├── app.py
+│   ├── dataset_delegacias.csv
+│   ├── EDA.ipynb
+│   └── modelo.ipynb
+```
+### Resumo técnico dos arquivos
+
+
+# Painel de Gestão — Supervisionado
+
+App **Streamlit** para visualização histórica e previsões de ocorrências por delegacia, ano, mês, dia da semana e tipo de crime.
 
 ## Estrutura do projeto
 
