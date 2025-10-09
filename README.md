@@ -80,11 +80,15 @@ App **Streamlit** para visualização histórica e previsões de ocorrências po
 
 Coloque estes arquivos dentro da pasta `Supervisionado`:
 ```
-Supervisionado/
-├─ app.py
-├─ dataset_encoded.csv
-├─ dataset_delegacias.txt
-├─ requirements.txt
+├── Supervisionado/
+│   ├── assets/
+│   │   ├── icon-policia-civil.png
+│   │   └── logo-policia-civil.png
+│   ├── app.py
+│   ├── dataset_delegacias
+│   ├── dataset_encoded.csv
+│   ├── EDA.ipynb
+│   └── modelo.ipynb
 ```
 yaml
 Copiar código
